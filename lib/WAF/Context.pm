@@ -1,15 +1,24 @@
 package WAF::Context;
 
-sub new {
-    my ($class, %args) = @_;
-    return bless {
-        env          => $args{env},
-    }, $class;
-}
+use utf8;
+use Moo;
+use Try::Tiny;
+use WAF::Config;
 
-sub env {
+has env => (
+    is => 'rw', 
+    required => 1
+);
+
+has route => (
+    is => 'ro',
+    lazy => 1,
+    builder => '_build_route'
+);
+
+sub _build_route {
     my $self = shift;
-    return $self->{env};
+    return WAF::Config->router->match($self->env);
 }
 
 #sub data_section {
