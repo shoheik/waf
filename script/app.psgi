@@ -1,23 +1,22 @@
 use strict;
 use warnings;
+use utf8;
 
+use Data::Dumper;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
+
+use Plack::Builder;
+
 use WAF;
-use Data::Dumper;
+use WAF::Config;
 
 my $app = WAF->as_psgi;
-#print Dumper WAF::run;
+my $root = config->root;
 
-any '/' => sub {
-    my $c = shift;
-    $c->render('index.tt', { name => 'shiba_yu36' });
+builder {
+
+    $app;
+
 };
 
-get '/hoge' => sub {
-    my $c = shift;
-    $c->render('hoge.tt', { name => 'shiba_yu36' });
-};
-
-$app;
-#WAF::run;
