@@ -15,8 +15,8 @@ my $app = WAF->as_psgi;
 my $root = config->root;
 
 builder {
-
+    enable 'Static', path => qr<^/(?:images|js|css|)/>, root => './public/';
+    enable 'Static', path => qr<^/favicon\.ico$>,      root => './public/images';
     $app;
-
 };
 

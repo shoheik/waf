@@ -1,7 +1,13 @@
 language: perl
 perl:
   - "5.16"
-  - "5.14"
+services:
+  - mysql 
+# Install Modules 
 before_install: "cpanm Carton"
 install: "carton install"
+# Setup DB
+before_script:
+  - mysql -e 'create database testdb;'
+  - mysql -u travis -Dtestdb -p'' < db/schema.sql 
 script: "carton exec -- prove -v t/*"
