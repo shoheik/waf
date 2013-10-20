@@ -1,0 +1,5 @@
+<html>
+  <body>
+    Hoge, [% name %]
+  </body>
+</html>

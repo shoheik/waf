@@ -6,3 +6,8 @@ requires 'Text::Xslate::Bridge::TT2Like';
 requires 'Config::ENV';
 requires 'Try::Tiny';
 requires 'Class::Load';
+requires 'Data::Dumper::Concise';
+requires 'Log::Minimal';
+requires 'HTTP::Status';
+requires 'JSON::XS';
+requires 'Encode';
