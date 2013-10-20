@@ -37,6 +37,11 @@ has stash => (
     default => sub { return +{} },
 );
 
+has db => (
+    is => 'ro',
+    lazy => 1,
+    builder => '_build_db'
+);
 
 sub _build_route {
     my $self = shift;
@@ -102,5 +107,33 @@ sub error {
     my ($self, $code, $message, %opts) = @_;
     WAF::Error->throw($code, $message, %opts);
 }
+
+### DB Access
+sub _build_db {
+    my ($self) = @_;
+    return WAF::DBI::Factory->new;
+}
+
+sub dbh {
+    my ($self, $name) = @_;
+    return $self->db->dbh($name);
+}
+
+# Utility
+#sub user {
+#    my ($self) = @_;
+#    return $self->{user} if $self->{user};
+#
+#    my $user_name = $self->req->env->{'hatena.user'} or return '';
+#    my $user = Intern::Bookmark::Service::User->find_user_by_name($self->db, {
+#        name => $user_name,
+#    });
+#    $user //= Intern::Bookmark::Service::User->create($self->db, {
+#        name => $user_name,
+#    });
+#
+#    return $self->{user} = $user;
+#}
+
 
 1;
