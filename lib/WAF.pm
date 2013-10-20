@@ -1,21 +1,21 @@
 package WAF;
 
-use strict;
-use warnings;
-use Data::Dumper;
+# This is for dispatching and error handling
+
 use Moo;
-
+use utf8;
+use Data::Dumper;
+use Data::Dumper::Concise; # to see sub { DUMMY }
 use Class::Load qw(load_class);
-
-#use Exporter::Lite;
-#our @EXPORT = qw(get post any waf);
-use Router::Simple;
-our $router = Router::Simple->new();
+use Log::Minimal; 
+use Try::Tiny;
+use HTTP::Status;
 
 use WAF::Context;
-use WAF::View;
+use WAF::Config;
 use WAF::Request;
 use WAF::Response;
+use WAF::Error;
 
 sub as_psgi {
     my $self = shift;
@@ -25,69 +25,53 @@ sub as_psgi {
     };
 }
 
-# ----- Controller -----
-
-sub get {
-    my ($url, $action) = @_;
-    any($url, $action, ['GET']);
-}
-
-sub post {
-    my ($url, $action) = @_;
-    any($url, $action, ['POST']);
-}
-
-sub any {
-    my ($url, $action, $methods) = @_;
-    my $opts = {};
-    $opts->{method} = $methods if $methods;
-    $router->connect($url, { action => $action }, $opts);
-}
-
 sub run {
     my ($self, $env) = @_;
 
-    #print Dumper $env;
-    #print "run this now\n";
     my $context = new WAF::Context(env => $env);
     my $dispatch;
-    my $route = $context->route;
-    #print Dumper $route;
 
-    my $engine = join '::', __PACKAGE__, 'Engine', $route->{engine};
-    my $action = $route->{action} || 'default';
-    $dispatch = "$engine#$action";
+    try {
+        my $route = $context->route or WAF::Error->throw(404);;
+        $route->{engine} or WAF::Error->throw(404);
 
-    #print Dumper $engine;
-    load_class $engine;
+        my $engine = join '::', __PACKAGE__, 'Engine', $route->{engine};
+        my $action = $route->{action} || 'default';
+        $dispatch = "$engine#$action";
+        infof("Dispatching $dispatch");
+        load_class $engine;
 
-    $self->before_dispatch($context);
+        $self->before_dispatch($context);
 
-    my $handler = $engine->can($action);
-    #print Dumper $handler;
-    $engine->$handler($context);
-    
+        my $handler = $engine->can($action) or WAF::Error->throw(501);;
+        $engine->$handler($context);
+    }
+    catch {
+        my $e = $_;
 
-    #try {
+        my $res = $context->request->new_response;
+        if (eval { $e->isa('WAF::Error') }) {
+            my $message = $e->{message} || HTTP::Status::status_message($e->{code});
+            $res->code($e->{code});
+            $res->header('X-Error-Message' => $message);
+            $res->content_type('text/plain');
+            $res->content($message);
+        }
+        else {
+            critf "%s", $e;
+            my $message = (config->env =~ /production/) ? 'Internal Server Error' : $e;
+            $res->code(500);
+            $res->content_type('text/plain');
+            $res->content($message);
+        }
+        $context->response($res);
+    }
+    finally {
+        $self->after_dispatch($context);
+    };
 
-    #};
-    #catch {
-    #    my $e = $_;
-    #};
-    #finally{
-    #    print "Finally!!";
-    #};
-
-    #if (my $p = $router->match($env)) {
-    #    $p->{action}->($context);
-    #    return $context->res->finalize;
-    #}
-    #else {
-    #    [404, [], ['not found']];
-    #}
-
-    $context->res->headers->header(X_Dispatch => $dispatch);
-    return $context->res->finalize;
+    $context->response->headers->header(X_Dispatch => $dispatch);
+    return $context->response->finalize;
 }
 
 

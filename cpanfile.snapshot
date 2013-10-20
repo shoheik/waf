@@ -77,6 +77,15 @@ DISTRIBUTIONS
       Test::Fatal 0
       Test::More 0
       Test::Name::FromLine 0
+  Data-Dumper-Concise-2.020
+    pathname: F/FR/FREW/Data-Dumper-Concise-2.020.tar.gz
+    provides:
+      Data::Dumper::Concise 2.020
+      Data::Dumper::Concise::Sugar undef
+      Devel::Dwarn undef
+    requirements:
+      ExtUtils::MakeMaker 6.42
+      perl 5.006
   Data-MessagePack-0.48
     pathname: G/GF/GFUJI/Data-MessagePack-0.48.tar.gz
     provides:
@@ -330,6 +339,14 @@ DISTRIBUTIONS
       File::Temp 0
       Scalar::Util 0
       Test::More 0.88
+  JSON-XS-2.34
+    pathname: M/ML/MLEHMANN/JSON-XS-2.34.tar.gz
+    provides:
+      JSON::XS 2.34
+      JSON::XS::Boolean 2.34
+    requirements:
+      ExtUtils::MakeMaker 0
+      common::sense 0
   LWP-MediaTypes-6.02
     pathname: G/GA/GAAS/LWP-MediaTypes-6.02.tar.gz
     provides:
@@ -346,6 +363,18 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.52
       Test::More 0.82
       perl 5.00503
+  Log-Minimal-0.16
+    pathname: K/KA/KAZEBURO/Log-Minimal-0.16.tar.gz
+    provides:
+      Log::Minimal 0.16
+    requirements:
+      CPAN::Meta 0
+      CPAN::Meta::Prereqs 0
+      Data::Dumper 0
+      ExtUtils::CBuilder 0
+      Module::Build 0.38
+      Scalar::Util 0
+      Term::ANSIColor 0
   Module-Implementation-0.07
     pathname: D/DR/DROLSKY/Module-Implementation-0.07.tar.gz
     provides:
@@ -879,3 +908,9 @@ DISTRIBUTIONS
       Test 0
       Test::More 0
       perl 5.008001
+  common-sense-3.72
+    pathname: M/ML/MLEHMANN/common-sense-3.72.tar.gz
+    provides:
+      common::sense 3.72
+    requirements:
+      ExtUtils::MakeMaker 0
